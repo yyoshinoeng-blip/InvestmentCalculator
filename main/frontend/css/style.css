@@ -1,0 +1,27 @@
+/* 入力欄 */
+.input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* ボタン */
+.btn {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+/* 結果 */
+#result {
+  color: #2563eb;
+  font-weight: bold;
+}
