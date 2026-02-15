@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>複利シミュレーター</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    
+    <!-- ヘッダー -->
+    <div class="text-center mb-10">
+      <div class="inline-block mb-4 p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8L5.586 18.414m0 0L3 20.828M3 20.828v-8m0 8h8"></path>
+        </svg>
+      </div>
+      <h1 class="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        複利シミュレーター
+      </h1>
+      <p class="text-gray-500 text-lg">複利の力で未来の資産を計画する</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- 左側：入力フォーム -->
+      <div class="lg:col-span-2">
+        <div class="card p-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">シミュレーション設定</h2>
+
+          <div class="space-y-6">
+            
+            <!-- 基本設定 -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">元本（円）</label>
+                <div class="relative">
+                  <input id="principal" type="number" class="input-field" value="1000000" placeholder="1000000">
+                  <span class="absolute right-3 top-3 text-gray-400 text-sm">円</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">初年度積立（円/月）</label>
+                <div class="relative">
+                  <input id="monthly" type="number" class="input-field" value="50000" placeholder="50000">
+                  <span class="absolute right-3 top-3 text-gray-400 text-sm">円/月</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">年利（％）</label>
+                <div class="relative">
+                  <input id="rate" type="number" step="0.1" class="input-field" value="3" placeholder="3">
+                  <span class="absolute right-3 top-3 text-gray-400 text-sm">%</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">運用年数（年）</label>
+                <div class="relative">
+                  <input id="years" type="number" class="input-field" value="20" placeholder="20">
+                  <span class="absolute right-3 top-3 text-gray-400 text-sm">年</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 増額設定 -->
+            <div class="border-t pt-6">
+              <label class="flex items-center gap-3 cursor-pointer mb-4">
+                <input id="enableIncrease" type="checkbox" class="checkbox-custom" onchange="toggleIncreaseSection()">
+                <span class="font-semibold text-gray-700">毎年の積立を増やす</span>
+              </label>
+
+              <div id="increaseSection" class="hidden space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="increaseType" value="fixed" checked class="radio-custom">
+                  <span class="font-medium text-gray-700">毎年一定額増加</span>
+                </label>
+                <div class="ml-8">
+                  <input id="increaseAmount" type="number" class="input-field" value="5000" placeholder="5000">
+                  <p class="text-xs text-gray-500 mt-2">毎年この金額を積立に加算（例：5000円/月ずつ増加）</p>
+                </div>
+
+                <label class="flex items-center gap-3 cursor-pointer mt-4">
+                  <input type="radio" name="increaseType" value="percent" class="radio-custom">
+                  <span class="font-medium text-gray-700">毎年比率で増加</span>
+                </label>
+                <div class="ml-8">
+                  <input id="increasePercent" type="number" step="0.1" class="input-field" value="5" placeholder="5">
+                  <p class="text-xs text-gray-500 mt-2">毎年前年の積立をこの%増加（例：5%ずつ増加）</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 実行ボタン -->
+            <button onclick="runSimulation()" class="btn-primary">
+              <svg class="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              シミュレーション実行
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側：結果表示 -->
+      <div class="space-y-6">
+        <div class="card p-6">
+          <p class="text-gray-500 text-sm font-medium mb-2">最終資産額</p>
+          <p class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent" id="resultAmount">---</p>
+          <p class="text-gray-400 text-xs mt-1">円</p>
+        </div>
+
+        <div class="card p-6">
+          <p class="text-gray-500 text-sm font-medium mb-3">内訳</p>
+          <div class="space-y-3">
+            <div>
+              <p class="text-xs text-gray-500">元本</p>
+              <p class="text-lg font-semibold text-gray-800" id="resultPrincipal">---</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">総積立額</p>
+              <p class="text-lg font-semibold text-gray-800" id="resultContribution">---</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">利息収入</p>
+              <p class="text-lg font-semibold text-green-600" id="resultInterest">---</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="font-semibold text-gray-800 mb-3">シナリオ一覧</h3>
+          <ul id="scenarioList" class="space-y-2 text-sm"></ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- グラフ -->
+    <div class="card p-8 mt-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">資産推移グラフ</h2>
+      <canvas id="chart"></canvas>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
